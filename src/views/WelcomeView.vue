@@ -28,8 +28,7 @@ const setupAccessToken = async () => {
   try {
     const auth = localStorage.getItem('auth')
     const oldToken: { token: string } = auth && JSON.parse(auth)
-
-    const token = await axios.post('http://localhost:3000/access-token', {
+    const token = await axios.post(`${import.meta.env.VITE_API_URL}/access-token`, {
       code: route.query.code,
       state: route.query.code,
       accessToken: oldToken?.token
