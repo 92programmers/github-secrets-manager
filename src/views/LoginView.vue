@@ -29,7 +29,7 @@ const app = new OAuthApp({
 
 const githubLogin = () => {
   const flow = app.getWebFlowAuthorizationUrl({
-    redirectUrl: `${location.host}${process.env.VITE_FRONTEND_URL}`
+    redirectUrl: `${location.origin}${import.meta.env.VITE_REDIRECT_URL}`
   })
   window.open(flow.url)
 }
