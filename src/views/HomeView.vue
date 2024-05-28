@@ -23,7 +23,11 @@
           >
             Update Secret
           </button>
-          <div class="h-7 w-7 text-gray-400 hover:text-gray-500 cursor-pointer" title="Logout">
+          <div
+            class="h-7 w-7 text-gray-400 hover:text-gray-500 cursor-pointer"
+            title="Logout"
+            @click="logout"
+          >
             <LogoutIcon />
           </div>
         </div>
@@ -131,6 +135,7 @@ import DrawerModal from '@/components/DrawerModal.vue'
 import LoadingSpinner from '@/components/LoadingSpinner.vue'
 import sodium from 'libsodium-wrappers'
 import LogoutIcon from '@/components/icons/LogoutIcon.vue'
+import { useRouter } from 'vue-router'
 import { toast } from 'vue3-toastify'
 import 'vue3-toastify/dist/index.css'
 
@@ -142,6 +147,8 @@ interface Repo {
     login: string
   }
 }
+
+const router = useRouter()
 
 const octokit = ref<any>(null)
 
@@ -177,7 +184,7 @@ const filteredArray = computed(() => {
 })
 
 const groupedByOwner = computed(() =>
-  filteredArray.value.reduce((acc, obj) => {
+  filteredArray.value.reduce((acc: any, obj) => {
     const ownerName = obj.owner.login
     if (!acc[ownerName]) {
       acc[ownerName] = []
@@ -187,11 +194,11 @@ const groupedByOwner = computed(() =>
   }, {})
 )
 
-let timeout
-function handleInput(event) {
+let timeout: any
+function handleInput(event: Event) {
   clearTimeout(timeout)
   timeout = setTimeout(() => {
-    searchTerm.value = event.target.value
+    searchTerm.value = (event.target as HTMLInputElement).value
   }, 500)
 }
 
@@ -292,6 +299,11 @@ const resetState = () => {
   selectedRepositories.value = []
   secretName.value = ''
   secretValue.value = ''
+}
+
+const logout = () => {
+  localStorage.removeItem('auth')
+  router.push({ name: 'login' })
 }
 
 const getKeyForRepo = async (owner: string, repo: string) => {
