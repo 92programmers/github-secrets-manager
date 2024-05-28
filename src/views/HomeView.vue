@@ -138,6 +138,7 @@ import LogoutIcon from '@/components/icons/LogoutIcon.vue'
 import { useRouter } from 'vue-router'
 import { toast } from 'vue3-toastify'
 import 'vue3-toastify/dist/index.css'
+import AuthService from '@/service/auth'
 
 interface Repo {
   id: number
@@ -301,7 +302,8 @@ const resetState = () => {
   secretValue.value = ''
 }
 
-const logout = () => {
+const logout = async () => {
+  AuthService.logout()
   localStorage.removeItem('auth')
   router.push({ name: 'login' })
 }

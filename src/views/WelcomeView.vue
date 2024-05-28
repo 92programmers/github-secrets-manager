@@ -11,9 +11,9 @@
 </template>
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
-import axios from 'axios'
 import { useRoute, useRouter } from 'vue-router'
 import LoadingSpinner from '@/components/LoadingSpinner.vue'
+import AuthService from '@/service/auth'
 
 const route = useRoute()
 const router = useRouter()
@@ -28,15 +28,11 @@ onMounted(async () => {
 
 const setupAccessToken = async () => {
   try {
-    const auth = localStorage.getItem('auth')
-    const oldToken: { token: string } = auth && JSON.parse(auth)
-    const token = await axios.post(`${import.meta.env.VITE_API_URL}/access-token`, {
-      code: route.query.code,
-      state: route.query.code,
-      accessToken: oldToken?.token
-    })
-    token?.data?.authentication &&
-      localStorage.setItem('auth', JSON.stringify(token?.data?.authentication))
+    const authentication = AuthService.getAccessToken(
+      route?.query?.code?.toString() ?? '',
+      route?.query?.state?.toString() ?? ''
+    )
+    authentication && localStorage.setItem('auth', JSON.stringify(authentication))
     router.push({ name: 'home' })
   } catch {
     router.push({ name: 'login' })
