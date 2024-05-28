@@ -1,18 +1,32 @@
 <template>
-  <main class="min-h-screen bg-[#1f2937]" :class="isDrawerOpen ? 'opacity-90' : ''">
+  <main class="min-h-screen bg-gray-100" :class="isDrawerOpen ? 'opacity-90' : ''">
     <section
-      class="container mx-auto flex flex-col gap-4 pt-12 pb-6 sticky top-0 bg-[#1f2937] border-b bottom-2 border-gray-100"
+      class="container mx-auto flex flex-col gap-4 pt-12 pb-6 sticky bg-gray-100 top-0 border-b bottom-2 border-gray-200"
     >
-      <h1 class="text-3xl text-center text-white">Welcome</h1>
+      <h1 class="text-4xl text-center text-gray-800 mb-2 drop-shadow-lg">Github Secrets Updater</h1>
       <div class="flex justify-between items-center">
-        <h1 class="text-3xl text-white">Repositories</h1>
-        <button
-          class="rounded-lg bg-gray-200 px-4 py-2 disabled:bg-gray-100 disabled:text-gray-400 hover:bg-blue-500 hover:text-white"
-          :disabled="!selectedRepositories.length"
-          @click="openDrawer"
-        >
-          Update Secret
-        </button>
+        <h1 class="text-3xl text-gray-800">Repositories</h1>
+        <div class="flex gap-4 items-center">
+          <input
+            :value="searchTerm"
+            @input="handleInput"
+            type="text"
+            id="secretTerm"
+            name="secretTerm"
+            placeholder="Search Repository by name"
+            class="mt-1 p-2 w-fit border rounded-md focus:outline-none focus:ring focus:border-blue-300"
+          />
+          <button
+            class="rounded-lg bg-gray-200 text-gray-700 px-4 py-2 disabled:bg-gray-200 disabled:text-gray-400 hover:bg-blue-500 hover:text-white"
+            :disabled="!selectedRepositories.length"
+            @click="openDrawer"
+          >
+            Update Secret
+          </button>
+          <div class="h-7 w-7 text-gray-400 hover:text-gray-500 cursor-pointer" title="Logout">
+            <LogoutIcon />
+          </div>
+        </div>
       </div>
     </section>
     <section class="container mx-auto py-6">
@@ -23,7 +37,7 @@
       <div v-else class="flex flex-col gapx-1 gap-y-5 w-full">
         <div v-for="(repositories, owner) in groupedByOwner" :key="owner" class="flex flex-col">
           <p
-            class="py-2 ps-3 pe-8 flex items-center border-b border-gray-200 text-gray-900 text-sm bg-gray-100 w-fit rounded-t font-bold uppercase"
+            class="py-2 ps-3 pe-8 flex items-center border-b border-gray-200 text-gray-900 text-sm bg-gray-300 w-full rounded-t font-bold uppercase"
           >
             <img
               class="w-8 h-8 rounded-full object-cover mr-3"
@@ -33,7 +47,7 @@
           </p>
           <div
             class="flex last:rounded-b cursor-pointer px-4 py-2 border-b border-gray-200"
-            :class="isSelected(repo.id) ? 'bg-blue-100' : 'bg-gray-100'"
+            :class="isSelected(repo.id) ? 'bg-blue-100' : 'bg-white'"
             v-for="(repo, index) in repositories"
             :key="repo.id"
             @click="handleClcik(repo)"
@@ -76,7 +90,9 @@
         @update:isOpen="isDrawerOpen = $event"
       >
         <div class="mb-4">
-          <label for="secretName" class="block text-sm font-medium text-white">Secret Name</label>
+          <label for="secretName" class="block text-sm font-medium text-gray-800"
+            >Secret Name</label
+          >
           <input
             v-model="secretName"
             type="text"
@@ -86,7 +102,9 @@
           />
         </div>
         <div class="mb-4">
-          <label for="secretValue" class="block text-sm font-medium text-white">Secret Value</label>
+          <label for="secretValue" class="block text-sm font-medium text-gray-800"
+            >Secret Value</label
+          >
           <input
             v-model="secretValue"
             type="text"
@@ -112,6 +130,7 @@ import { Octokit } from 'octokit'
 import DrawerModal from '@/components/DrawerModal.vue'
 import LoadingSpinner from '@/components/LoadingSpinner.vue'
 import sodium from 'libsodium-wrappers'
+import LogoutIcon from '@/components/icons/LogoutIcon.vue'
 import { toast } from 'vue3-toastify'
 import 'vue3-toastify/dist/index.css'
 
@@ -134,6 +153,8 @@ const selectedRepositories = ref<Repo[]>([])
 const secretName = ref('')
 const secretValue = ref('')
 
+const searchTerm = ref('')
+
 const loading = ref({
   repos: false,
   secrets: false
@@ -150,8 +171,13 @@ onMounted(async () => {
 
 const isSelected = (id: number) => !!selectedRepositories.value.find((repo) => repo.id === id)
 
+const filteredArray = computed(() => {
+  const search = searchTerm.value.toLowerCase()
+  return repositories.value.filter((repo) => !search || repo.name.toLowerCase().includes(search))
+})
+
 const groupedByOwner = computed(() =>
-  repositories.value.reduce((acc, obj) => {
+  filteredArray.value.reduce((acc, obj) => {
     const ownerName = obj.owner.login
     if (!acc[ownerName]) {
       acc[ownerName] = []
@@ -160,6 +186,14 @@ const groupedByOwner = computed(() =>
     return acc
   }, {})
 )
+
+let timeout
+function handleInput(event) {
+  clearTimeout(timeout)
+  timeout = setTimeout(() => {
+    searchTerm.value = event.target.value
+  }, 500)
+}
 
 const handleCheckboxChange = (event: Event, repo: Repo) => {
   if ((event.target as HTMLInputElement).checked) {

@@ -1,5 +1,5 @@
 <template>
-  <section class="h-screen bg-[#1f2937]">
+  <section class="h-screen bg-gray-100">
     <div class="container mx-auto h-full px-6 py-24">
       <div class="flex h-full flex-wrap items-center justify-center lg:justify-between">
         <!-- Left column container with background-->
@@ -14,10 +14,10 @@
         <!-- Right column container with form -->
         <div class="md:w-8/12 lg:ms-6 lg:w-5/12 h-full">
           <div class="flex flex-col justify-center h-full">
-            <p class="text-white text-3xl font-bold h-20">{{ animatedText }}</p>
+            <p class="text-gray-800 text-3xl font-bold h-20">{{ animatedText }}</p>
             <button
               @click="githubLogin"
-              class="w-full lx tn yz ze zo adu alm are aru avz awf axu bbm bbs bbw bce big bpp flex justify-center items-center rounded-lg bg-gray-200 px-4 py-2 hover:bg-gray-400"
+              class="w-full lx tn yz ze zo adu alm are aru avz awf axu bbm bbs bbw bce big bpp flex justify-center items-center rounded-lg bg-gray-900 text-white px-4 py-2 hover:bg-gray-200 hover:text-gray-800"
             >
               <svg class="nz sb aoi h-5" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20">
                 <path
@@ -58,7 +58,7 @@ const githubLogin = () => {
   window.open(flow.url)
 }
 
-const text = 'Welcome back.'
+const text = 'Welcome back...'
 const animatedText = ref('')
 
 const animateText = () => {

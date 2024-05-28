@@ -1,7 +1,7 @@
 <template>
-  <main class="h-screen bg-[#1f2937]">
+  <main class="h-screen bg-gray-100">
     <section class="container mx-auto flex flex-col gap-4 px-6 py-12">
-      <h1 class="text-3xl text-center text-white">Welcome</h1>
+      <h1 class="text-4xl text-center text-gray-800 drop-shadow-lg">Welcome</h1>
       <div class="mt-4 text-lg flex items-center justify-center text-gray-400">
         <div class="mr-2">Setting up your account. Please wait...</div>
         <LoadingSpinner />
