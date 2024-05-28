@@ -28,7 +28,7 @@ onMounted(async () => {
 
 const setupAccessToken = async () => {
   try {
-    const authentication = AuthService.getAccessToken(
+    const authentication = await AuthService.getAccessToken(
       route?.query?.code?.toString() ?? '',
       route?.query?.state?.toString() ?? ''
     )
