@@ -22,16 +22,17 @@ const loading = ref(false)
 
 onMounted(async () => {
   loading.value = true
-  await setupAccessToken()
+  const code = route?.query?.code?.toString() ?? ''
+  const state = route?.query?.state?.toString() ?? ''
+  if (code && state) {
+    await setupAccessToken(code, state)
+  } else router.push({ name: 'login' })
   loading.value = false
 })
 
-const setupAccessToken = async () => {
+const setupAccessToken = async (code: string, state: string) => {
   try {
-    const authentication = await AuthService.getAccessToken(
-      route?.query?.code?.toString() ?? '',
-      route?.query?.state?.toString() ?? ''
-    )
+    const authentication = await AuthService.getAccessToken(code, state)
     authentication && localStorage.setItem('auth', JSON.stringify(authentication))
     router.push({ name: 'home' })
   } catch {
