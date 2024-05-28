@@ -1,10 +1,12 @@
 <template>
-  <main class="min-h-screen container mx-auto flex flex-col gap-4 px-6 py-12">
-    <h1 class="text-3xl text-center">Welcome</h1>
-    <div class="mt-4 text-lg flex items-center justify-center text-gray-400">
-      <div class="mr-2">Setting up your account. Please wait...</div>
-      <LoadingSpinner />
-    </div>
+  <main class="h-screen bg-[#1f2937]">
+    <section class="container mx-auto flex flex-col gap-4 px-6 py-12">
+      <h1 class="text-3xl text-center text-white">Welcome</h1>
+      <div class="mt-4 text-lg flex items-center justify-center text-gray-400">
+        <div class="mr-2">Setting up your account. Please wait...</div>
+        <LoadingSpinner />
+      </div>
+    </section>
   </main>
 </template>
 <script setup lang="ts">

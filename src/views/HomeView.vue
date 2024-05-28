@@ -1,97 +1,113 @@
 <template>
-  <main class="min-h-screen container mx-auto flex flex-col gap-4 px-6 py-12">
-    <h1 class="text-3xl text-center">Welcome</h1>
-    <div class="flex justify-between items-center">
-      <h1 class="text-3xl">Repositories</h1>
-      <button
-        class="rounded-lg bg-gray-200 px-4 py-2 disabled:bg-gray-100 disabled:text-gray-400 hover:bg-blue-500 hover:text-white"
-        :disabled="!selectedRepositories.length"
-        @click="openDrawer"
+  <main class="min-h-screen bg-[#1f2937]" :class="isDrawerOpen ? 'opacity-90' : ''">
+    <section
+      class="container mx-auto flex flex-col gap-4 pt-12 pb-6 sticky top-0 bg-[#1f2937] border-b bottom-2 border-gray-100"
+    >
+      <h1 class="text-3xl text-center text-white">Welcome</h1>
+      <div class="flex justify-between items-center">
+        <h1 class="text-3xl text-white">Repositories</h1>
+        <button
+          class="rounded-lg bg-gray-200 px-4 py-2 disabled:bg-gray-100 disabled:text-gray-400 hover:bg-blue-500 hover:text-white"
+          :disabled="!selectedRepositories.length"
+          @click="openDrawer"
+        >
+          Update Secret
+        </button>
+      </div>
+    </section>
+    <section class="container mx-auto py-6">
+      <div v-if="loading.repos" class="mt-4 text-lg flex items-center justify-center text-gray-400">
+        <div class="mr-2">Loading your repos. Please wait...</div>
+        <LoadingSpinner />
+      </div>
+      <div v-else class="flex flex-col gapx-1 gap-y-5 w-full">
+        <div v-for="(repositories, owner) in groupedByOwner" :key="owner" class="flex flex-col">
+          <p
+            class="py-2 ps-3 pe-8 flex items-center border-b border-gray-200 text-gray-900 text-sm bg-gray-100 w-fit rounded-t font-bold uppercase"
+          >
+            <img
+              class="w-8 h-8 rounded-full object-cover mr-3"
+              :src="repositories[0].owner.avatar_url"
+              alt="organization avatar"
+            />{{ owner }}
+          </p>
+          <div
+            class="flex last:rounded-b cursor-pointer px-4 py-2 border-b border-gray-200"
+            :class="isSelected(repo.id) ? 'bg-blue-100' : 'bg-gray-100'"
+            v-for="(repo, index) in repositories"
+            :key="repo.id"
+            @click="handleClcik(repo)"
+          >
+            <div class="flex items-center mt-[10px] h-5">
+              <p class="pr-2">{{ index + 1 }}:</p>
+              <input
+                :id="'repo-checkbox-' + repo.id"
+                :value="repo"
+                type="checkbox"
+                class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                :checked="isSelected(repo.id)"
+                @change="handleCheckboxChange($event, repo)"
+              />
+            </div>
+            <div class="ms-2 mt-1 text-sm">
+              <label for="helper-checkbox" class="font-medium text-lg text-gray-900">{{
+                repo?.name
+              }}</label>
+              <p>
+                Owner: <span class="text-xs font-normal text-gray-500">{{ repo.owner.login }}</span>
+              </p>
+              <p>
+                URL:
+                <a
+                  id="helper-checkbox-text"
+                  target="_blank"
+                  :href="repo.html_url"
+                  class="text-xs font-normal text-gray-500"
+                  >{{ repo.html_url }}</a
+                >
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <DrawerModal
+        title="Update Secret"
+        :isOpen="isDrawerOpen"
+        @update:isOpen="isDrawerOpen = $event"
       >
-        Update Secret
-      </button>
-    </div>
-    <div v-if="loading.repos" class="mt-4 text-lg flex items-center justify-center text-gray-400">
-      <div class="mr-2">Loading your repos. Please wait...</div>
-      <LoadingSpinner />
-    </div>
-    <div v-else class="flex flex-col gap-2 w-full">
-      <div
-        class="flex rounded-lg cursor-pointer px-4 py-2"
-        :class="isSelected(repo.id) ? 'bg-blue-200' : 'bg-gray-200'"
-        v-for="repo in repositories"
-        :key="repo.id"
-        @click="handleClcik(repo)"
-      >
-        <div class="flex items-center mt-[10px] h-5">
+        <div class="mb-4">
+          <label for="secretName" class="block text-sm font-medium text-white">Secret Name</label>
           <input
-            :id="'repo-checkbox-' + repo.id"
-            :value="repo"
-            type="checkbox"
-            class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
-            :checked="isSelected(repo.id)"
-            @change="handleCheckboxChange($event, repo)"
+            v-model="secretName"
+            type="text"
+            id="secretName"
+            name="secretName"
+            class="mt-1 p-2 w-full border rounded-md focus:outline-none focus:ring focus:border-blue-300"
           />
         </div>
-        <div class="ms-2 mt-1 text-sm">
-          <label for="helper-checkbox" class="font-medium text-lg text-gray-900">{{
-            repo?.name
-          }}</label>
-          <p>
-            Owner: <span class="text-xs font-normal text-gray-500">{{ repo.owner.login }}</span>
-          </p>
-          <p>
-            URL:
-            <a
-              id="helper-checkbox-text"
-              target="_blank"
-              :href="repo.html_url"
-              class="text-xs font-normal text-gray-500"
-              >{{ repo.html_url }}</a
-            >
-          </p>
+        <div class="mb-4">
+          <label for="secretValue" class="block text-sm font-medium text-white">Secret Value</label>
+          <input
+            v-model="secretValue"
+            type="text"
+            id="secretValue"
+            name="secretValue"
+            class="mt-1 p-2 w-full border rounded-md focus:outline-none focus:ring focus:border-blue-300"
+          />
         </div>
-      </div>
-    </div>
-    <DrawerModal
-      title="Update Secret"
-      :isOpen="isDrawerOpen"
-      @update:isOpen="isDrawerOpen = $event"
-    >
-      <div class="mb-4">
-        <label for="secretName" class="block text-sm font-medium text-gray-700">Secret Name</label>
-        <input
-          v-model="secretName"
-          type="text"
-          id="secretName"
-          name="secretName"
-          class="mt-1 p-2 w-full border rounded-md focus:outline-none focus:ring focus:border-blue-300"
-        />
-      </div>
-      <div class="mb-4">
-        <label for="secretValue" class="block text-sm font-medium text-gray-700"
-          >Secret Value</label
+        <button
+          class="rounded-lg w-full bg-gray-200 mt-6 px-4 py-2 disabled:bg-gray-100 disabled:text-gray-400 hover:bg-blue-500 hover:text-white"
+          :disabled="loading.secrets"
+          @click="updateSecrets"
         >
-        <input
-          v-model="secretValue"
-          type="text"
-          id="secretValue"
-          name="secretValue"
-          class="mt-1 p-2 w-full border rounded-md focus:outline-none focus:ring focus:border-blue-300"
-        />
-      </div>
-      <button
-        class="rounded-lg w-full bg-gray-200 px-4 py-2 disabled:bg-gray-100 disabled:text-gray-400 hover:bg-blue-500 hover:text-white"
-        :disabled="loading.secrets"
-        @click="updateSecrets"
-      >
-        {{ loading.secrets ? 'Updating...' : 'Update' }}
-      </button>
-    </DrawerModal>
+          {{ loading.secrets ? 'Updating...' : 'Update' }}
+        </button>
+      </DrawerModal>
+    </section>
   </main>
 </template>
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, computed } from 'vue'
 import { Octokit } from 'octokit'
 import DrawerModal from '@/components/DrawerModal.vue'
 import LoadingSpinner from '@/components/LoadingSpinner.vue'
@@ -133,6 +149,17 @@ onMounted(async () => {
 })
 
 const isSelected = (id: number) => !!selectedRepositories.value.find((repo) => repo.id === id)
+
+const groupedByOwner = computed(() =>
+  repositories.value.reduce((acc, obj) => {
+    const ownerName = obj.owner.login
+    if (!acc[ownerName]) {
+      acc[ownerName] = []
+    }
+    acc[ownerName].push(obj)
+    return acc
+  }, {})
+)
 
 const handleCheckboxChange = (event: Event, repo: Repo) => {
   if ((event.target as HTMLInputElement).checked) {
@@ -192,6 +219,7 @@ const getOrgs = async () => {
 }
 
 const updateSecrets = async () => {
+  if (!secretName.value || !secretValue.value) return
   try {
     loading.value.secrets = true
     for (let selectedRepo of selectedRepositories.value) {
@@ -205,7 +233,7 @@ const updateSecrets = async () => {
       position: 'bottom-right'
     })
   } catch (error) {
-    toast('Secrets updated successfully!', {
+    toast('Unable to update secrets!', {
       autoClose: 1000,
       type: 'error',
       position: 'bottom-right'
