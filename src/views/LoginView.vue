@@ -48,7 +48,7 @@ onMounted(() => {
 const app = new OAuthApp({
   clientId,
   clientSecret: '', // we dont need client secret on frontend
-  defaultScopes: ['repo', 'gist', 'user', 'project', 'admin:org', 'orgs']
+  defaultScopes: ['repo']
 })
 
 const githubLogin = () => {
