@@ -53,9 +53,9 @@ const app = new OAuthApp({
 
 const githubLogin = () => {
   const flow = app.getWebFlowAuthorizationUrl({
-    redirectUrl: `${location.origin}${import.meta.env.VITE_REDIRECT_URL}`
+    redirectUrl: `${location.origin}${import.meta.env.VITE_REDIRECT_URL}`,
   })
-  window.open(flow.url)
+  window.open(`${flow.url}&prompt=consent`)
 }
 
 const text = 'Welcome back...'
